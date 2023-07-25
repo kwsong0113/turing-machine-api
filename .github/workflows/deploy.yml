@@ -1,0 +1,47 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create environment file
+        run: |
+          touch .env.prod
+          echo "${{ secrets.ENV_VARS }}" >> .env.prod
+          
+      - name: Create and use docker context for production
+        uses: arwynfr/actions-docker-context@v2
+        with:
+          docker_host: ${{ secrets.SSH_HOST }}
+          context_name: prod
+          ssh_cert: ${{ secrets.SSH_KNOWN_HOSTS }}
+          ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          use_context: true
+
+      - name: Start container using Docker Compose
+        run: >
+          docker-compose --project-directory .
+          -f deploy/docker-compose.base.yml 
+          -f deploy/docker-compose.prod.yml
+          up -d --build
+
+      - name: Prune unused Docker objects
+        run: |
+          docker image prune -f
+          docker container prune -f
+
+
+
+

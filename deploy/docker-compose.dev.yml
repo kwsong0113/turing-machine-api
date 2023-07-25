@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      target: dev
+      dockerfile: ./deploy/Dockerfile
+    ports:
+      - "8004:8000"
+    volumes:
+    - ./app:/usr/src/app
+    env_file:
+      .env.dev
+    deploy:
+      restart_policy:
+        condition: none
+
+  db:
+    deploy:
+      restart_policy:
+        condition: none
