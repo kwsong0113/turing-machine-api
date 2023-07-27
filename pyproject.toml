@@ -12,7 +12,23 @@ fastapi = "^0.100.0"
 sqlmodel = "^0.0.8"
 greenlet = "^2.0.2"
 python-dotenv = "^1.0.0"
+alembic = "^1.11.1"
 
+[tool.poe.tasks]
+dev = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml"
+dev-up = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml up -d --build"
+dev-down = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml down"
+dev-alembic = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml exec app alembic"
+dev-alembic-revision = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml exec app alembic revision --autogenerate -m"
+dev-alembic-upgrade = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml exec app alembic upgrade head"
+dev-psql = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml exec db psql -U postgres turing_machine"
+prod = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml"
+prod-up = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml up -d --build"
+prod-down = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml down"
+prod-alembic = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml exec app alembic"
+prod-alembic-revision = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml exec app alembic revision --autogenerate -m"
+prod-alembic-upgrade = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml exec app alembic upgrade head"
+prod-psql = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.prod.yml exec db psql -U postgres turing_machine"
 
 [build-system]
 requires = ["poetry-core"]
