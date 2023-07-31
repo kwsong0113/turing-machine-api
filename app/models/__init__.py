@@ -1,2 +1,2 @@
-from .hero import *
-from .team import *
+from .user import *
+from .game import *
