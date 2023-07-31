@@ -1,24 +1,11 @@
-from fastapi import FastAPI, Depends
-from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import FastAPI
 
-from .db import init_db, get_session
-from .models import Song, SongCreate
+from app.core.config import settings
+from app.api.router import api_router
 
-app = FastAPI()
+app = FastAPI(
+    title=f"Turing Machine API - {'Development' if settings.DEV else 'Production'}",
+    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
+)
 
-
-@app.get("/songs", response_model=list[Song])
-async def get_songs(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(Song))
-    songs = result.scalars().all()
-    return songs
-
-
-@app.post("/songs")
-async def add_song(song: SongCreate, session: AsyncSession = Depends(get_session)):
-    song = Song(name=song.name, artist=song.artist)
-    session.add(song)
-    await session.commit()
-    await session.refresh(song)
-    return song
+app.include_router(api_router, prefix=settings.API_V1_PREFIX)
