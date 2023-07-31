@@ -1,11 +1,10 @@
 from fastapi import APIRouter
-from .endpoints import teams, heroes
+from .endpoints import users
 
 api_router = APIRouter()
 
 routers = [
-    (teams.router, "teams", "teams"),
-    (heroes.router, "heroes", "heroes"),
+    (users.router, "users", "users"),
 ]
 
 for router, prefix, tag in routers:

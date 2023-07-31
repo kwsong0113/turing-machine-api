@@ -1,14 +1,27 @@
-from typing import Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import (
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    Callable,
+    Awaitable,
+)
+from fastapi import Depends
 from fastapi.encoders import jsonable_encoder
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.db.session import get_session
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=SQLModel)
 
 
-class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType], session: AsyncSession):
         self.model = model
         self.session = session
@@ -57,3 +70,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await self.session.commit()
 
         return obj
+
+
+CRUDType = TypeVar("CRUDType", bound=BaseCRUD)
+
+
+def get_crud_function(
+    model: Type[ModelType], crud: Type[CRUDType]
+) -> Callable[[AsyncSession], Awaitable[CRUDType]]:
+    async def get_crud(session: AsyncSession = Depends(get_session)):
+        return crud(model, session)
+
+    return get_crud
