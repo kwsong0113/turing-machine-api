@@ -13,6 +13,7 @@ sqlmodel = "^0.0.8"
 greenlet = "^2.0.2"
 python-dotenv = "^1.0.0"
 alembic = "^1.11.1"
+websockets = "^11.0.3"
 
 [tool.poe.tasks]
 dev = "docker-compose --project-directory . -f deploy/docker-compose.base.yml -f deploy/docker-compose.dev.yml"

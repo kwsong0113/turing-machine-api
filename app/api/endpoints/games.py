@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from starlette import status
+from starlette.responses import HTMLResponse
+
 from app.api.response import DetailResponse
 from app.crud import UserCRUD, GameCRUD, get_user_crud, get_game_crud
 from app.models.game import Game, GameCreate, GameStatus
+from app.utils.manager import connection_manager
 
 router = APIRouter()
 
@@ -62,3 +65,22 @@ async def start_game(
 
     await user_crud.update(user_id, {"game": first_open_game})
     return first_open_game
+
+
+@router.websocket("/ws/{game_id}/{user_id}")
+async def game_websocket(
+    websocket: WebSocket,
+    game_id: int,
+    user_id: int,
+    game_crud: GameCRUD = Depends(get_game_crud),
+):
+    game_manager = await connection_manager.connect(
+        websocket, game_id, user_id, game_crud
+    )
+    try:
+        while True:
+            data = await websocket.receive_json()
+            await game_manager.on_receive(data, user_id)
+
+    except WebSocketDisconnect:
+        await game_manager.disconnect(user_id)
