@@ -1,8 +1,8 @@
-"""add user
+"""add user and game
 
-Revision ID: 39411a2b8f9c
+Revision ID: e651c5b97956
 Revises: 
-Create Date: 2023-07-31 09:16:55.956459
+Create Date: 2023-07-31 09:26:33.984586
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision = '39411a2b8f9c'
+revision = 'e651c5b97956'
 down_revision = None
 branch_labels = None
 depends_on = None

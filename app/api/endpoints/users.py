@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/{id}",
+    "/{user_id}",
     response_model=User,
     responses={status.HTTP_404_NOT_FOUND: {"model": DetailResponse}},
 )

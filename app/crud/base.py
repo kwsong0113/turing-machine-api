@@ -11,6 +11,7 @@ from typing import (
 )
 from fastapi import Depends
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm import selectinload
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -51,12 +52,11 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj = await self.get(id)
         if db_obj is None:
             return None
-        obj_data = jsonable_encoder(db_obj)
         update_data = (
             obj_in if isinstance(obj_in, dict) else obj_in.dict(exclude_unset=True)
         )
         for field, value in update_data.items():
-            setattr(obj_data, field, value)
+            setattr(db_obj, field, value)
 
         self.session.add(db_obj)
         await self.session.commit()
