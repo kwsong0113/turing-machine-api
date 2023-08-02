@@ -6,6 +6,10 @@ async def isolate_game(game_id: int, game_crud: GameCRUD) -> None:
     await game_crud.update(game_id, {"status": GameStatus.PLAYING})
 
 
+async def end_game(game_id: int, game_crud: GameCRUD) -> None:
+    await game_crud.update(game_id, {"status": GameStatus.ENDED})
+
+
 async def assign_problem(
     game_id: int, problem: ProblemCreate, game_crud: GameCRUD, problem_crud: ProblemCRUD
 ) -> None:
