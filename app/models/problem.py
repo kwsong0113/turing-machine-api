@@ -1,11 +1,14 @@
 from typing import List
-from sqlmodel import SQLModel, Field
+
+from sqlalchemy import Column
+from sqlmodel import SQLModel, Field, ARRAY, Integer
 
 
 class ProblemBase(SQLModel):
     id: str = Field(primary_key=True)
-    verifiers: List[int]
-    laws: List[int]
+    verifiers: List[int] = Field(sa_column=Column(ARRAY(Integer())))
+    laws: List[int] = Field(sa_column=Column(ARRAY(Integer())))
+    code: int
 
 
 class Problem(ProblemBase, table=True):

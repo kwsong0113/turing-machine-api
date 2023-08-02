@@ -1,7 +1,8 @@
 from fastapi import WebSocket
 
-from app.crud.game import GameCRUD
-from app.utils.game import isolate_game
+from app.crud import ProblemCRUD, GameCRUD
+from app.utils.game import isolate_game, assign_problem
+from app.utils.problem import generate_problem, get_guess_result, GuessResultType
 
 
 class GameManager:
@@ -10,21 +11,23 @@ class GameManager:
         self.active_user_connections: dict[int, WebSocket] = {}
         self.stage = -1
         self.active_user_guesses: dict[int, int] = {}
-        self.problem_id: int | None = None
+        self.problem_id: str | None = None
         self.game_crud: GameCRUD | None = None
+        self.problem_crud: ProblemCRUD | None = None
 
     async def connect(self, websocket: WebSocket, user_id: int):
         await websocket.accept()
         self.active_user_connections[user_id] = websocket
         if len(self.active_user_connections) == 2:
-            # TODO: call isolate_game util
             await isolate_game(self.game_id, self.game_crud)
             await self.promote_stage()
             await self.send_personal_message(user_id, {"type": "PROBLEM"})
 
-    def set_game_crud(self, game_crud: GameCRUD):
+    def set_cruds(self, game_crud: GameCRUD, problem_crud: ProblemCRUD):
         if self.game_crud is None:
             self.game_crud = game_crud
+        if self.problem_crud is None:
+            self.problem_crud = problem_crud
 
     async def disconnect(self, user_id: int):
         del self.active_user_connections[user_id]
@@ -40,8 +43,13 @@ class GameManager:
     async def on_receive(self, data: dict[str, any], user_id: int):
         match data["type"]:
             case "PROBLEM":
-                # TODO: call generate_and_assign_problem util
-                # TODO: set problem_id
+                problem = await generate_problem(
+                    data["difficulty"], data["num_verifiers"]
+                )
+                await assign_problem(
+                    self.game_id, problem, self.game_crud, self.problem_crud
+                )
+                self.problem_id = problem.id
                 await self.broadcast({"type": "PROBLEM_ID", "id": self.problem_id})
                 await self.promote_stage()
             case "THUMB":
@@ -51,9 +59,15 @@ class GameManager:
                 if len(self.active_user_guesses) == 2:
                     pass
                     # TODO: call get_results util
-                    # Results can be promote, no winner, winner
-                    # TODO: promote stage or broadcast result
-                    await connection_manager.disconnect(self.game_id)
+                    result = await get_guess_result(
+                        self.problem_id, self.active_user_guesses, self.problem_crud
+                    )
+
+                    if result.result_type == GuessResultType.NO_THUMB:
+                        await self.promote_stage()
+                    else:
+                        await self.broadcast({"type": "RESULT", **result.__dict__})
+                        await connection_manager.disconnect(self.game_id)
 
     async def promote_stage(self):
         self.stage += 1
@@ -71,10 +85,15 @@ class ConnectionMananger:
         return self.game_mananagers[game_id]
 
     async def connect(
-        self, websocket: WebSocket, game_id: int, user_id: int, game_crud: GameCRUD
+        self,
+        websocket: WebSocket,
+        game_id: int,
+        user_id: int,
+        game_crud: GameCRUD,
+        problem_crud: ProblemCRUD,
     ) -> GameManager:
         game_manager = self.get_game_mananger(game_id)
-        game_manager.set_game_crud(game_crud)
+        game_manager.set_cruds(game_crud, problem_crud)
         await game_manager.connect(websocket, user_id)
         return game_manager
 

@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from starlette import status
-from starlette.responses import HTMLResponse
 
 from app.api.response import DetailResponse
-from app.crud import UserCRUD, GameCRUD, get_user_crud, get_game_crud
+from app.crud import (
+    UserCRUD,
+    GameCRUD,
+    get_user_crud,
+    get_game_crud,
+    ProblemCRUD,
+    get_problem_crud,
+)
 from app.models.game import Game, GameCreate, GameStatus
 from app.utils.manager import connection_manager
 
@@ -73,9 +79,10 @@ async def game_websocket(
     game_id: int,
     user_id: int,
     game_crud: GameCRUD = Depends(get_game_crud),
+    problem_crud: ProblemCRUD = Depends(get_problem_crud),
 ):
     game_manager = await connection_manager.connect(
-        websocket, game_id, user_id, game_crud
+        websocket, game_id, user_id, game_crud, problem_crud
     )
     try:
         while True:
