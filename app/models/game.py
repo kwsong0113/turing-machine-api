@@ -13,14 +13,16 @@ class GameStatus(StrEnum):
 
 
 class GameBase(SQLModel):
-    pass
+    status: GameStatus = Field(default="WAITING")
+    problem_id: Optional[str] = Field(default=None)
 
 
 class Game(GameBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    status: GameStatus = Field(default="WAITING")
 
-    users: List["User"] = Relationship(back_populates="game", sa_relationship_kwargs={"lazy": "selectin"})
+    users: List["User"] = Relationship(
+        back_populates="game", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class GameCreate(GameBase):

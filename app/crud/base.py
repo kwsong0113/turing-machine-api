@@ -27,7 +27,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
         self.session = session
 
-    async def get(self, id: int) -> Optional[ModelType]:
+    async def get(self, id: int | str) -> Optional[ModelType]:
         obj = await self.session.get(self.model, id)
         return obj
 
@@ -47,7 +47,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     async def update(
-        self, id: int, obj_in: Union[UpdateSchemaType, Dict[str, any]]
+        self, id: int | str, obj_in: Union[UpdateSchemaType, Dict[str, any]]
     ) -> Optional[ModelType]:
         db_obj = await self.get(id)
         if db_obj is None:
@@ -63,7 +63,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await self.session.refresh(db_obj)
         return db_obj
 
-    async def remove(self, id: int) -> Optional[ModelType]:
+    async def remove(self, id: int | str) -> Optional[ModelType]:
         obj = await self.get(id)
         if obj:
             await self.session.delete(obj)
