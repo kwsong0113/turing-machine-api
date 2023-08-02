@@ -40,8 +40,8 @@ class GameManager:
     async def on_receive(self, data: dict[str, any], user_id: int):
         match data["type"]:
             case "PROBLEM":
-                # TODO: set problem_id
                 # TODO: call generate_and_assign_problem util
+                # TODO: set problem_id
                 await self.broadcast({"type": "PROBLEM_ID", "id": self.problem_id})
                 await self.promote_stage()
             case "THUMB":
