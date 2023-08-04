@@ -1,9 +1,12 @@
+from typing import Annotated
+
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
     WebSocket,
     WebSocketDisconnect,
+    Body,
 )
 from starlette import status
 
@@ -52,7 +55,7 @@ async def create_game(
     responses={status.HTTP_404_NOT_FOUND: {"model": DetailResponse}},
 )
 async def start_game(
-    user_id: int,
+    user_id: Annotated[int, Body(embed=True)],
     game_crud: GameCRUD = Depends(get_game_crud),
     user_crud: UserCRUD = Depends(get_user_crud),
 ):
