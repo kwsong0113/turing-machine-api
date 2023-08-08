@@ -2,6 +2,8 @@
 
 API for building an interactive Turing Machine game
 
+[![Server Health Check](https://github.com/kwsong0113/turing-machine-api/actions/workflows/health.yml/badge.svg)](https://github.com/kwsong0113/turing-machine-api/actions/workflows/health.yml)
+
 ---
 
 **Documentation**: [Swagger UI](http://43.200.120.78/docs) / [Redoc](http://43.200.120.78/redoc)
