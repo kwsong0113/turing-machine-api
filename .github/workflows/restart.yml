@@ -15,7 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  restart:
+    name: Restart
     runs-on: ubuntu-latest
 
     steps:
@@ -59,3 +60,9 @@ jobs:
           -f deploy/docker-compose.base.yml
           -f deploy/docker-compose.prod.yml
           up -d
+
+  health_check:
+    needs: restart
+    name: Post-Deployment Test
+    uses: ./.github/workflows/health.yml
+    secrets: inherit

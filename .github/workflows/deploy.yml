@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -42,6 +43,8 @@ jobs:
           docker image prune -f
           docker container prune -f
 
-
-
-
+  health_check:
+    needs: deploy
+    name: Post-Deployment Test
+    uses: ./.github/workflows/health.yml
+    secrets: inherit

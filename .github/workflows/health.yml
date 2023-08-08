@@ -3,14 +3,16 @@ name: Server Health Check
 on:
   schedule:
     - cron: '*/5 * * * *'
+  workflow_call:
   workflow_dispatch:
   workflow_run:
-    workflows: [CD]
-    types: [completed]
-
+    workflows: [CD, Restart]
+    types:
+      - completed
 
 jobs:
   health_check:
+    name: Health Check
     runs-on: ubuntu-latest
     steps:
       - id: server_check
