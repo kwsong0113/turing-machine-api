@@ -30,7 +30,7 @@ jobs:
           ssh_key: ${{ secrets.SSH_PRIVATE_KEY }}
           use_context: true
 
-      - name: Start container using Docker Compose
+      - name: Start containers using Docker Compose
         run: >
           docker-compose --project-directory .
           -f deploy/docker-compose.base.yml 
