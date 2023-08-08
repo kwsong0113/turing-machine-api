@@ -3,6 +3,7 @@ name: Server Health Check
 on:
   schedule:
     - cron: '*/5 * * * *'
+  workflow_dispatch:
   workflow_run:
     workflows: [CD]
     types: [completed]
@@ -15,8 +16,8 @@ jobs:
       - id: server_check
         name: Check server status
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.API_ENDPOINT_URL }}/api/v1/health)
-          echo "{RESPONSE}={$RESPONSE}" >> $GITHUB_OUTPUT
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.API_ENDPOINT_URL }}/api/v1/health/)
+          echo "RESPONSE=$RESPONSE" >> $GITHUB_OUTPUT
           
       - name: Determine Outcome
         run: |
